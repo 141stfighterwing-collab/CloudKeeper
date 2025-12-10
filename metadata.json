@@ -1,0 +1,5 @@
+{
+  "name": "CloudKeeper",
+  "description": "A centralized dashboard to monitor, manage, and track the status of your hosted applications and domains.",
+  "requestFramePermissions": []
+}
