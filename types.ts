@@ -36,3 +36,11 @@ export interface StorageConfig {
   supabaseUrl?: string;
   supabaseKey?: string;
 }
+
+export interface AuditLogEntry {
+  id: string;
+  timestamp: string;
+  level: 'INFO' | 'WARN' | 'ERROR';
+  action: string;
+  details?: any;
+}

@@ -10,6 +10,7 @@ import { fetchDomainMetadata } from './services/geminiService';
 import { checkStatus } from './services/statusService';
 import { storageService } from './services/storage';
 import { authService } from './services/auth';
+import { auditService } from './services/auditService';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -43,9 +44,11 @@ function App() {
     } catch (e: any) {
         if (e.message === "TABLE_MISSING") {
              setLoadError("TABLE_MISSING");
+             auditService.log('WARN', 'Apps Load Failed - Table Missing', {});
         } else {
              console.error("Failed to load apps", e);
              setLoadError(e.message || "Could not connect to database.");
+             auditService.log('ERROR', 'Apps Load Failed', e);
         }
     } finally {
         setIsLoading(false);
@@ -85,15 +88,18 @@ function App() {
   const handleLogin = () => {
       setIsAuthenticated(true);
       loadApps();
+      auditService.log('INFO', 'User Logged In');
   };
 
   const handleLogout = () => {
       authService.logout();
       setIsAuthenticated(false);
       setApps([]);
+      auditService.log('INFO', 'User Logged Out');
   };
 
   const handleAddDomain = async (url: string) => {
+    auditService.log('INFO', 'Adding Domain', { url });
     const id = crypto.randomUUID();
     const hostname = new URL(url).hostname;
     const faviconUrl = `https://www.google.com/s2/favicons?sz=64&domain=${url}`;
@@ -122,6 +128,7 @@ function App() {
              return;
         }
         console.error(e);
+        auditService.log('ERROR', 'Add Domain Persistence Failed', e);
     }
 
     // 3. Async fetch metadata & status
@@ -141,9 +148,11 @@ function App() {
 
       // 5. Update UI
       setApps(prev => prev.map(app => app.id === id ? fullApp : app));
+      auditService.log('INFO', 'Domain Added Successfully', { id, name: fullApp.name });
       
     } catch (error) {
       console.error("Failed to setup new domain fully", error);
+      auditService.log('ERROR', 'Domain Analysis Failed', { url, error });
     }
   };
 
@@ -163,6 +172,7 @@ function App() {
     setApps(prev => prev.map(a => 
         a.id === id ? { ...a, ...updates } : a
     ));
+    auditService.log('INFO', 'Manual Status Refresh', { id, status });
   };
 
   const updateApp = async (id: string, data: Partial<DomainApp>) => {
@@ -172,6 +182,7 @@ function App() {
     ));
     // Persist
     await storageService.updateApp(id, data);
+    auditService.log('INFO', 'App Updated', { id, fields: Object.keys(data) });
   };
 
   const deleteApp = async (id: string) => {
@@ -181,6 +192,7 @@ function App() {
         if (selectedAppId === id) setSelectedAppId(null);
         // Persist
         await storageService.deleteApp(id);
+        auditService.log('INFO', 'Domain Deleted', { id });
     }
   };
 

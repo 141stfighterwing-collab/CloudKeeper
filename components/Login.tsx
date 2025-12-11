@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { LayoutGrid, Lock, ArrowRight, AlertCircle, User, Loader2, Copy, Check, Database, Terminal, RefreshCw } from 'lucide-react';
 import { authService } from '../services/auth';
+import { auditService } from '../services/auditService';
 
 interface LoginProps {
   onLogin: () => void;
@@ -26,7 +27,10 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
     if (success) {
       onLogin();
     } else {
-      setError(authError || 'Authentication failed');
+      const errorMsg = authError || 'Authentication failed';
+      setError(errorMsg);
+      auditService.log('WARN', 'Login Failed', { username, error: errorMsg });
+
       if (authError !== 'LOGIN_TABLE_MISSING') {
           setIsShake(true);
           setTimeout(() => setIsShake(false), 500);
