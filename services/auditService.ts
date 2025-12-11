@@ -36,14 +36,15 @@ export const auditService = {
           timestamp: entry.timestamp
         }).then(({ error }) => {
           if (error) {
-              // If table missing, fallback to local so we don't lose the log about the missing table
-              if (error.code === '42P01') {
-                  this.saveToLocal(entry);
-              } else {
-                  console.error("Failed to push audit log to Supabase:", error);
-              }
+              // Log the full error object so [object Object] doesn't hide the details
+              console.warn("Failed to push audit log to Supabase, falling back to local:", JSON.stringify(error, null, 2));
+              
+              // Fallback to local storage for ANY error (Table missing 42P01, RLS 42501, or Network)
+              this.saveToLocal(entry);
           }
         });
+      } else {
+         this.saveToLocal(entry);
       }
     } else {
       this.saveToLocal(entry);

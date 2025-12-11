@@ -69,8 +69,14 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, onConfig
   action text,
   details jsonb
 );
+
+-- Enable RLS
 alter table audit_logs enable row level security;
-create policy "Public Access" on audit_logs for all using (true);`;
+
+-- Allow public read/write access (using + check for insert)
+create policy "Public Access" on audit_logs for all 
+using (true) 
+with check (true);`;
 
   const copySql = () => {
       navigator.clipboard.writeText(auditSql);
