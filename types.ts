@@ -8,6 +8,17 @@ export interface DomainApp {
   status: 'online' | 'offline' | 'checking' | 'unknown';
   lastChecked: number;
   favicon?: string;
+  
+  // New fields
+  expiresAt?: string; // ISO Date YYYY-MM-DD
+  registrar?: string;
+  registrarUrl?: string;
+  
+  // Network Info
+  ipAddress?: string;
+  location?: string;
+  isp?: string;
+  nameservers?: string[];
 }
 
 export interface DomainMetadata {
@@ -15,4 +26,6 @@ export interface DomainMetadata {
   description: string;
   owner: string;
   registrationDate: string;
+  expiresAt: string;
+  registrar: string;
 }

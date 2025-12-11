@@ -7,9 +7,14 @@ export const fetchDomainMetadata = async (url: string): Promise<DomainMetadata> 
   try {
     const prompt = `
       Analyze the domain or URL: "${url}".
-      Provide a likely name for this service/app, a brief 1-sentence description, 
-      the likely owner (organization or "Private"), and an estimated or known registration date/year.
-      If it is a localhost or private IP, just describe it as a local service.
+      Provide the following details in JSON format:
+      1. A clean, displayable "name" for the app/domain.
+      2. A brief 1-sentence "description".
+      3. The likely "owner" (organization or "Private").
+      4. The "registrationDate" (Year or Date).
+      5. The "registrar" (e.g., GoDaddy, Namecheap, AWS).
+      6. The estimated "expiresAt" date in YYYY-MM-DD format. If unknown or privacy protected, make a best guess based on standard 1-year increments from registration or return "Unknown".
+      
       Return valid JSON.
     `;
 
@@ -21,10 +26,12 @@ export const fetchDomainMetadata = async (url: string): Promise<DomainMetadata> 
         responseSchema: {
           type: Type.OBJECT,
           properties: {
-            name: { type: Type.STRING, description: "A clean, displayable name for the app/domain" },
-            description: { type: Type.STRING, description: "A short description of what the site does" },
-            owner: { type: Type.STRING, description: "The likely owner or 'Unknown'" },
-            registrationDate: { type: Type.STRING, description: "The registration year or date, or 'Unknown'" },
+            name: { type: Type.STRING },
+            description: { type: Type.STRING },
+            owner: { type: Type.STRING },
+            registrationDate: { type: Type.STRING },
+            registrar: { type: Type.STRING },
+            expiresAt: { type: Type.STRING, description: "YYYY-MM-DD or 'Unknown'" },
           },
           required: ["name", "description", "owner", "registrationDate"],
         }
@@ -38,12 +45,14 @@ export const fetchDomainMetadata = async (url: string): Promise<DomainMetadata> 
 
   } catch (error) {
     console.error("Gemini metadata fetch failed:", error);
-    // Fallback if Gemini fails or API key is missing
+    // Fallback
     return {
       name: new URL(url).hostname,
       description: "No description available.",
       owner: "Unknown",
-      registrationDate: "Unknown"
+      registrationDate: "Unknown",
+      registrar: "Unknown",
+      expiresAt: "Unknown"
     };
   }
 };

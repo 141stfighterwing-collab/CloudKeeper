@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { LayoutGrid, Plus, Search, Trash2, Command } from 'lucide-react';
 import { DomainApp } from './types';
 import AddDomainModal from './components/AddDomainModal';
@@ -31,13 +31,14 @@ function App() {
 
   const handleAddDomain = async (url: string) => {
     const id = crypto.randomUUID();
+    const hostname = new URL(url).hostname;
     const faviconUrl = `https://www.google.com/s2/favicons?sz=64&domain=${url}`;
     
     // Initial optimistic add
     const newApp: DomainApp = {
       id,
       url,
-      name: new URL(url).hostname,
+      name: hostname,
       status: 'checking',
       lastChecked: Date.now(),
       favicon: faviconUrl,
@@ -66,7 +67,6 @@ function App() {
       }));
     } catch (error) {
       console.error("Failed to setup new domain fully", error);
-      // Even if metadata fails, we keep the app
     }
   };
 
@@ -82,6 +82,12 @@ function App() {
     
     setApps(prev => prev.map(a => 
         a.id === id ? { ...a, status, lastChecked: Date.now() } : a
+    ));
+  };
+
+  const updateApp = (id: string, data: Partial<DomainApp>) => {
+    setApps(prev => prev.map(app => 
+        app.id === id ? { ...app, ...data } : app
     ));
   };
 
@@ -257,6 +263,7 @@ function App() {
         onClose={() => setSelectedAppId(null)} 
         onRefresh={refreshStatus}
         onDelete={deleteApp}
+        onUpdate={updateApp}
       />
       
     </div>
