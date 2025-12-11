@@ -36,8 +36,15 @@ export const auditService = {
           timestamp: entry.timestamp
         }).then(({ error }) => {
           if (error) {
-              // Log the full error object as string so [object Object] doesn't hide details
-              console.warn("Failed to push audit log to Supabase, falling back to local:", JSON.stringify(error, null, 2));
+              // Robust error stringification
+              let errorMsg = "Unknown Error";
+              try {
+                  errorMsg = JSON.stringify(error, null, 2);
+              } catch (e) {
+                  errorMsg = String(error);
+              }
+
+              console.warn(`Failed to push audit log to Supabase (falling back to local): ${errorMsg}`);
               
               // Fallback to local storage for ANY error (Table missing 42P01, RLS 42501, or Network)
               this.saveToLocal(entry);

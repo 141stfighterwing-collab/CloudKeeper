@@ -195,20 +195,21 @@ const DomainDetails: React.FC<DomainDetailsProps> = ({ app, onClose, onRefresh, 
               <div>
                  <div className="flex items-center justify-between mb-3">
                     <h3 className="text-lg font-semibold text-white">Network & Hosting</h3>
-                    {(!app.ipAddress) && (
+                    {(!app.ipAddress || !app.nameservers) && (
                         <button 
                             onClick={handleNetworkAnalysis}
                             disabled={analyzingNetwork}
                             className="text-xs bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2"
                         >
                             {analyzingNetwork ? <Loader2 className="w-3 h-3 animate-spin"/> : <Activity className="w-3 h-3" />}
-                            Run Analysis
+                            Run WHOIS Analysis
                         </button>
                     )}
                  </div>
 
                  {app.ipAddress ? (
                     <div className="grid grid-cols-1 gap-3">
+                        {/* IP & Location */}
                         <div className="bg-slate-800/30 p-4 rounded-xl border border-slate-700/30 flex items-start gap-3">
                             <div className="p-2 bg-cyan-500/10 rounded-lg text-cyan-400">
                                 <Server className="w-5 h-5" />
@@ -230,6 +231,24 @@ const DomainDetails: React.FC<DomainDetailsProps> = ({ app, onClose, onRefresh, 
                             </div>
                         </div>
                         
+                        {/* Nameservers Section (New) */}
+                        {app.nameservers && app.nameservers.length > 0 && (
+                            <div className="mt-2">
+                                <div className="flex items-center gap-2 mb-2 mt-4">
+                                    <Globe className="w-4 h-4 text-slate-400"/>
+                                    <h4 className="text-sm font-semibold text-slate-300 uppercase tracking-wide">Nameservers</h4>
+                                </div>
+                                <div className="bg-slate-800/30 p-3 rounded-lg border border-slate-700/30 font-mono text-xs text-slate-400 space-y-1">
+                                    {app.nameservers.map((ns, i) => (
+                                        <div key={i} className="flex items-center gap-2">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-slate-600"></div>
+                                            {ns}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
                         {/* DNS Records Section */}
                         {app.dnsRecords && Object.keys(app.dnsRecords).length > 0 && (
                             <div className="mt-4">
@@ -265,7 +284,15 @@ const DomainDetails: React.FC<DomainDetailsProps> = ({ app, onClose, onRefresh, 
                     </div>
                  ) : (
                     <div className="text-center py-6 bg-slate-800/20 rounded-xl border border-dashed border-slate-700">
-                        <p className="text-slate-500 text-sm">Run analysis to view IP, location, and DNS records.</p>
+                        <p className="text-slate-500 text-sm mb-3">Run analysis to view detailed WHOIS, IP, and DNS data.</p>
+                        <button 
+                            onClick={handleNetworkAnalysis}
+                            disabled={analyzingNetwork}
+                            className="text-sm bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2 mx-auto"
+                        >
+                             {analyzingNetwork ? <Loader2 className="w-4 h-4 animate-spin"/> : <Activity className="w-4 h-4" />}
+                             Start Scan
+                        </button>
                     </div>
                  )}
               </div>
