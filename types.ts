@@ -19,6 +19,7 @@ export interface DomainApp {
   location?: string;
   isp?: string;
   nameservers?: string[];
+  dnsRecords?: Record<string, string[]>;
 }
 
 export interface DomainMetadata {
@@ -28,4 +29,10 @@ export interface DomainMetadata {
   registrationDate: string;
   expiresAt: string;
   registrar: string;
+}
+
+export interface StorageConfig {
+  type: 'local' | 'supabase';
+  supabaseUrl?: string;
+  supabaseKey?: string;
 }

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { DomainApp } from '../types';
-import { ExternalLink, Calendar, User, Clock, RefreshCw, X, Server, Trash2, Shield, Globe, MapPin, Activity, AlertTriangle, Loader2 } from 'lucide-react';
+import { ExternalLink, Calendar, User, Clock, RefreshCw, X, Server, Trash2, Shield, Globe, MapPin, Activity, AlertTriangle, Loader2, Network } from 'lucide-react';
 import StatusBadge from './StatusBadge';
 import { fetchNetworkDetails } from '../services/networkService';
 
@@ -229,10 +229,43 @@ const DomainDetails: React.FC<DomainDetailsProps> = ({ app, onClose, onRefresh, 
                                 <p className="text-slate-200 mt-1 text-sm">{app.location || "Unknown"}</p>
                             </div>
                         </div>
+                        
+                        {/* DNS Records Section */}
+                        {app.dnsRecords && Object.keys(app.dnsRecords).length > 0 && (
+                            <div className="mt-4">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <Network className="w-4 h-4 text-slate-400"/>
+                                    <h4 className="text-sm font-semibold text-slate-300 uppercase tracking-wide">DNS Records</h4>
+                                </div>
+                                <div className="space-y-2">
+                                    {Object.entries(app.dnsRecords).map(([type, records]: [string, string[]]) => (
+                                        <div key={type} className="bg-slate-800/30 p-3 rounded-lg border border-slate-700/30">
+                                            <div className="flex items-start gap-3">
+                                                <span className={`px-2 py-1 rounded text-xs font-bold w-14 text-center ${
+                                                    type === 'A' ? 'bg-cyan-500/20 text-cyan-300' :
+                                                    type === 'MX' ? 'bg-purple-500/20 text-purple-300' :
+                                                    type === 'TXT' ? 'bg-slate-500/20 text-slate-300' :
+                                                    'bg-indigo-500/20 text-indigo-300'
+                                                }`}>
+                                                    {type}
+                                                </span>
+                                                <div className="flex-1 overflow-hidden">
+                                                    {records.map((rec, idx) => (
+                                                        <div key={idx} className="text-xs text-slate-400 font-mono truncate mb-1 last:mb-0 select-all hover:text-slate-300">
+                                                            {rec}
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </div>
                  ) : (
                     <div className="text-center py-6 bg-slate-800/20 rounded-xl border border-dashed border-slate-700">
-                        <p className="text-slate-500 text-sm">Run analysis to view IP and location data.</p>
+                        <p className="text-slate-500 text-sm">Run analysis to view IP, location, and DNS records.</p>
                     </div>
                  )}
               </div>
